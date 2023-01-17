@@ -145,19 +145,41 @@ class manufacturing_laboratory():
 
     def testing_api(self):
         print(self.headers)
-        data = {
+        data_1 = {
             "id": "airpicker1",
             "status":"off",
             "start_time_process": "2",
         }
+        data_2 = {
+            "id": "laser1",
+            "status":"off",
+            "start_time_process": "2",
+        }
+        data_3 = {
+            "id": "qualitycontrol1",
+            "status":"off",
+            "start_time_process": "2",
+        }
 
-        json_data = json.dumps(data)
-        print(json_data)
-        response = requests.post(url=self.url_airpicker, headers=self.headers, data=json_data, verify=False)
-        print(response)
+        json_data_1 = json.dumps(data_1)
+        json_data_2 = json.dumps(data_2)
+        json_data_3 = json.dumps(data_3)
+
+        print(json_data_1)
+        response_1 = requests.post(url=self.url_airpicker, headers=self.headers, data=json_data_1, verify=False)
+        print(response_1)
+        print(json_data_2)
+        response_2 = requests.post(url=self.url_laser, headers=self.headers, data=json_data_2, verify=False)
+        print(response_2)
+        print(json_data_3)
+        response_3 = requests.post(url=self.url_belt, headers=self.headers, data=json_data_3, verify=False)
+        print(response_3)
         return True
         
 
-manufactory = manufacturing_laboratory(username = "iotadmin.00179", password ="2D#To8JUZ6qN", port_arm1= "COM13" , port_arm2 = "COM14", url_airpicker ="https://iotdemo00179.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Airpicker-Connector",url_laser ="https://iotdemo00179.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Laser-Connector",url_belt ="https://iotdemo00179.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/QualityControl-Connector")
+url_link_qualitycontrol = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Quality_Control_Connector"
+url_link_airpicker = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Airpicker_Connector"
+url_link_laser = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Laser_Connector"
+manufactory = manufacturing_laboratory(username = "iotadmin.00179", password ="2D#To8JUZ6qN", port_arm1= "COM13" , port_arm2 = "COM14", url_airpicker =url_link_airpicker,url_laser =url_link_laser,url_belt = url_link_qualitycontrol)
 
-print(manufactory.start_process())
+print(manufactory.testing_api())

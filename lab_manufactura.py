@@ -187,3 +187,4 @@ url_link_laser = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oracle
 manufactory = manufacturing_laboratory(username = "iotadmin.00182", password ="IN#O9KiqQXMM", port_arm1= "COM13" , port_arm2 = "COM14", url_airpicker =url_link_airpicker,url_laser =url_link_laser,url_belt = url_link_qualitycontrol)
 
 print(manufactory.testing_api())
+

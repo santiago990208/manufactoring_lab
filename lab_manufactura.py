@@ -137,7 +137,7 @@ class manufacturing_laboratory():
         
         #agregar vibracion de sensor en el laser para que no gabre el segundo 
         if count == 1:
-            self.block_production("ORACLE_LASER.txt",2)
+            self.block_production("IoT.txt",2)
             print("gravando laser")
             
         self.api_monitor(url= self.url_laser, machine_id="laser1", status="finish graving")

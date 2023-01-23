@@ -1,4 +1,5 @@
 from pydexarm import Dexarm
+from sense_hat import SenseHat
 import random
 import requests
 import base64
@@ -44,14 +45,14 @@ class manufacturing_laboratory():
             self.start_time_process = time.perf_counter() - start_time
             time.sleep(0.5)
 
-    def block_production(self, gcode_path='RESET_POINT.txt', arm=1):
+    def block_production(self, gcode_path='RESET_POINT.txt', arm=1, count = 1):
         if arm == 1:
             dexarm = Dexarm(port=self.port_arm1)
         if arm == 2:
             dexarm = Dexarm(port=self.port_arm2)
         if arm == 3:
             dexarm = Dexarm(port=self.port_arm2)
-            gcode_path = self.quality_control()
+            gcode_path = self.quality_control(count)
 
         gcode_file = open(gcode_path, 'r')
         while True: 
@@ -65,32 +66,39 @@ class manufacturing_laboratory():
 
         return True
 
-    def quality_control(self):
+    def quality_control(self, count):
         gcode_path =''
-        k = random.random()
-        print(k)
-        if k > 0.2:
+        if count == 1:
             gcode_path = 'BELT_MOVEMENT_POS.txt'
             self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="block approved")
+            self.api_monitor(url= self.url_belt, machine_id="counter_aproved", counter=1)
         else:
             gcode_path = 'BELT_MOVEMENT_NEG.txt'
             self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="block rejected")
+            self.api_monitor(url= self.url_belt, machine_id="counter_rejected", counter=1)
         return gcode_path
 
-    def api_monitor(self, url="", machine_id="airpicker1",  status="off"): 
+    def api_monitor(self, counter="",  url="", machine_id="airpicker1",  status="off"): 
 
-        data = {
-            "id": machine_id,
-            "status":status,
-            "start_time_process": f"{self.start_time_process:.2f}",
-        }
+        if counter != "":
+            data = {
+                "id": machine_id,
+                "counter":counter,
+                "start_time_process":  f"{self.start_time_process:.2f}",
+            }
+        else:
+            data = {
+                "id": machine_id,
+                "status":status,
+                "start_time_process": f"{self.start_time_process:.2f}",
+            }
 
         json_data = json.dumps(data)
         response = requests.post(url, headers=self.headers, data=json_data, verify=False)
         print(response.status_code)
         return True
 
-    def production_line(self):
+    def production_line(self, count):
         #Set init point
         self.block_production()
         self.block_production(arm=2)
@@ -100,8 +108,12 @@ class manufacturing_laboratory():
         self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="off")
 
         #Choose block and set to graving station
+        
         self.api_monitor(url= self.url_airpicker, machine_id="airpicker1", status="block collocation for graving")
-        self.block_production('BLOCK_MOVEMENT.txt',1)
+
+        #agregar vibracion de sensor en el laser para que no gabre el segundo 
+        if count == 1:
+            self.block_production('BLOCK_MOVEMENT.txt',1)
         self.api_monitor(url= self.url_airpicker, machine_id="airpicker1", status="off")
 
         #Graving station
@@ -117,7 +129,7 @@ class manufacturing_laboratory():
 
         #Pick bloxk and set it to quality control station
         self.api_monitor(url= self.url_airpicker, machine_id="airpicker1", status="block collocation for quality control")
-        self.block_production('BLOCK_MOVEMENT_TO_BELT.txt',1)
+        self.block_production('BLOCK_MOVEMENT_TO_BELT.txt',1, count)
         self.api_monitor(url= self.url_airpicker, machine_id="airpicker1", status="off")
 
         #Quality control
@@ -129,19 +141,24 @@ class manufacturing_laboratory():
     
     def start_process(self):
         # Start the cronometer
-        self.cronometer_running = True
+        count = 1
+        for count in range(2):
 
-        thread = threading.Thread(target=self.cronometer)
-        thread.start()
+            self.cronometer_running = True
 
-        # Run the production line
-        production_line = self.production_line()
-        
-        # Finish the cronometer
-        self.cronometer_running = False
-        thread.join()
+            thread = threading.Thread(target=self.cronometer)
+            thread.start()
 
-        return f" {production_line} in: {self.start_time_process:.2f} seconds"
+            # Run the production line 1
+            production_line = self.production_line(count)
+            count += 1
+            # Finish the cronometer
+            self.cronometer_running = False
+            thread.join()
+
+            print(f" {production_line} in: {self.start_time_process:.2f} seconds")
+            
+        return "Finish 2 blocks productions"
 
     def testing_api(self):
         print(self.headers)
@@ -160,10 +177,22 @@ class manufacturing_laboratory():
             "status":"off",
             "start_time_process": "2",
         }
+        data_4 = {
+            "id": "counter_aproved",
+            "counter":"1",
+            "start_time_process": "2",
+        }
+        data_5 = {
+            "id": "counter_rejected",
+            "counter":"1",
+            "start_time_process": "2",
+        }
 
         json_data_1 = json.dumps(data_1)
         json_data_2 = json.dumps(data_2)
         json_data_3 = json.dumps(data_3)
+        json_data_4 = json.dumps(data_4)
+        json_data_5 = json.dumps(data_5)
 
         print(json_data_1)
         response_1 = requests.post(url=self.url_airpicker, headers=self.headers, data=json_data_1, verify=False)
@@ -177,8 +206,20 @@ class manufacturing_laboratory():
         response_3 = requests.post(url=self.url_belt, headers=self.headers, data=json_data_3, verify=False)
         print(response_3)
 
+        print(json_data_4)
+        response_4 = requests.post(url=self.url_belt, headers=self.headers, data=json_data_4, verify=False)
+        print(response_4)
+
+        print(json_data_5)
+        response_5 = requests.post(url=self.url_belt, headers=self.headers, data=json_data_5, verify=False)
+        print(response_5)
+
         return True
         
+    def vibration (self):
+        sense = SenseHat()
+
+
 
 url_link_qualitycontrol = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Quality_Control_Connector"
 url_link_airpicker = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Airpicker_Connector"

@@ -49,13 +49,13 @@ class manufacturing_laboratory():
     def vibration(self):
         # Run the senser vibration in a new thread
         sense = SenseHat()
-        #sense.show_message("Starting")
+        sense.show_message("Starting")
         while self.sensor_running:
             self.accelerometer = sense.get_accelerometer_raw()
             x = self.accelerometer["x"]
             y = self.accelerometer["y"]
             z = self.accelerometer["z"]
-            print("x: {0},y: {1}, z: {2}".format(x,y,z))
+            #print("x: {0},y: {1}, z: {2}".format(x,y,z))
             
             if (x > 1.5) or (y > 1.5) or (z > 1.5):
                 sense.clear((255,0,0))
@@ -239,7 +239,6 @@ class manufacturing_laboratory():
         return True
     
     def testing_production_line(self, count):
-        def production_line(self, count):
         #Set init point
         self.block_production()
         self.block_production(arm=2)

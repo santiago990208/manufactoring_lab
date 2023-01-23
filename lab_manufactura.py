@@ -20,6 +20,7 @@ class manufacturing_laboratory():
         self.headers = ""
         self.start_time_process = 0
         self.cronometer_running = False
+        self.sensor_running = False
 
 
     def conf_api_headers(self):
@@ -44,6 +45,22 @@ class manufacturing_laboratory():
         while self.cronometer_running:
             self.start_time_process = time.perf_counter() - start_time
             time.sleep(0.5)
+
+    def vibration(self):
+        # Run the senser vibration in a new thread
+        sense = SenseHat()
+        #sense.show_message("Starting")
+        while self.sensor_running:
+            self.accelerometer = sense.get_accelerometer_raw()
+            x = self.accelerometer["x"]
+            y = self.accelerometer["y"]
+            z = self.accelerometer["z"]
+            print("x: {0},y: {1}, z: {2}".format(x,y,z))
+            
+            if (x > 1.5) or (y > 1.5) or (z > 1.5):
+                sense.clear((255,0,0))
+            else:
+                sense.clear((0,255,0))
 
     def block_production(self, gcode_path='RESET_POINT.txt', arm=1, count = 1):
         if arm == 1:
@@ -110,19 +127,19 @@ class manufacturing_laboratory():
         #Choose block and set to graving station
         
         self.api_monitor(url= self.url_airpicker, machine_id="airpicker1", status="block collocation for graving")
-
-        #agregar vibracion de sensor en el laser para que no gabre el segundo 
-        if count == 1:
-            self.block_production('BLOCK_MOVEMENT.txt',1)
+        self.block_production('BLOCK_MOVEMENT.txt',1)
         self.api_monitor(url= self.url_airpicker, machine_id="airpicker1", status="off")
 
         #Graving station
         self.api_monitor(url= self.url_laser, machine_id="laser1", status="on")
         self.block_production("LASER_MOVEMENT_START.txt",2)
-
         self.api_monitor(url= self.url_laser, machine_id="laser1", status="graving")
-        # self.block_production("ORACLE_LASER.txt",2)
-        print("gravando laser")
+        
+        #agregar vibracion de sensor en el laser para que no gabre el segundo 
+        if count == 1:
+            self.block_production("ORACLE_LASER.txt",2)
+            print("gravando laser")
+            
         self.api_monitor(url= self.url_laser, machine_id="laser1", status="finish graving")
         self.block_production("LASER_MOVEMENT_FINISH.txt",2)
         self.api_monitor(url= self.url_laser, machine_id="laser1", status="off")
@@ -145,16 +162,21 @@ class manufacturing_laboratory():
         for count in range(2):
 
             self.cronometer_running = True
+            self.sensor_running = True
 
-            thread = threading.Thread(target=self.cronometer)
-            thread.start()
+            thread_cronometer = threading.Thread(target=self.cronometer)
+            thread_cronometer.start()
+            thread_sensor = threading.Thread(target=self.vibration)
+            thread_sensor.start()
 
             # Run the production line 1
-            production_line = self.production_line(count)
+            production_line = self.testing_production_line(count)
             count += 1
             # Finish the cronometer
             self.cronometer_running = False
-            thread.join()
+            self.sensor_running = False
+            thread_cronometer.join()
+            thread_sensor.join()
 
             print(f" {production_line} in: {self.start_time_process:.2f} seconds")
             
@@ -215,10 +237,41 @@ class manufacturing_laboratory():
         print(response_5)
 
         return True
-        
-    def vibration (self):
-        sense = SenseHat()
+    
+    def testing_production_line(self, count):
+        def production_line(self, count):
+        #Set init point
+        self.block_production()
+        self.block_production(arm=2)
+        self.conf_api_headers()
 
+        #Choose block and set to graving station
+        
+        self.block_production('BLOCK_MOVEMENT.txt',1)
+
+        #Graving station
+        self.block_production("LASER_MOVEMENT_START.txt",2)
+        
+        #agregar vibracion de sensor en el laser para que no gabre el segundo 
+        if count == 1:
+            print("gravando laser")
+            
+        
+        self.block_production("LASER_MOVEMENT_FINISH.txt",2)
+        
+
+        #Pick bloxk and set it to quality control station
+        
+        self.block_production('BLOCK_MOVEMENT_TO_BELT.txt',1, count)
+        
+
+        #Quality control
+       
+        self.block_production(arm=3)
+        
+
+        return "Finish block"
+        
 
 
 url_link_qualitycontrol = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Quality_Control_Connector"
@@ -227,5 +280,5 @@ url_link_laser = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oracle
 
 manufactory = manufacturing_laboratory(username = "iotadmin.00182", password ="IN#O9KiqQXMM", port_arm1= "COM13" , port_arm2 = "COM14", url_airpicker =url_link_airpicker,url_laser =url_link_laser,url_belt = url_link_qualitycontrol)
 
-print(manufactory.testing_api())
+manufactory.start_process()
 

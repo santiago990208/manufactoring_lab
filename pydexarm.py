@@ -38,6 +38,7 @@ class Dexarm:
                     break
                 else:
                     print("read：", serial_str)
+                    break
 
     def go_home(self):
         """

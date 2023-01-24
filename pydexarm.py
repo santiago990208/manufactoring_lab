@@ -34,10 +34,11 @@ class Dexarm:
             serial_str = self.ser.readline().decode("utf-8")
             if len(serial_str) > 0:
                 if serial_str.find("ok") > -1:
-                    print("read ok")
+                    #print("read ok")
                     break
                 else:
-                    print("read：", serial_str)
+                    #print("read：", serial_str)
+                    break
 
     def go_home(self):
         """

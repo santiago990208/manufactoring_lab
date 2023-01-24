@@ -273,6 +273,7 @@ class manufacturing_laboratory():
         if self.error_production == 0:
             print("gravando laser")
             self.block_production("IoT.txt",2)
+            self.block_production("LASER_MOVEMENT_FINISH.txt",2)
             print("gravando laser")
             
         self.block_production("LASER_MOVEMENT_FINISH.txt",2)

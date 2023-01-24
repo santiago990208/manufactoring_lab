@@ -196,7 +196,7 @@ class manufacturing_laboratory():
             self.sensor_running = False
             thread_sensor.join()
 
-            self.sense.show_message(f" Finished {in_production} blocks in: {self.start_time_process:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])
+            self.sense.show_message(f" Finished {in_production+1} blocks in: {self.start_time_process:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])
             in_production += 1
 
         self.sense.show_message("FINISHED PRODUCTION", text_colour=[0, 255, 255], back_colour=[25, 25, 25])

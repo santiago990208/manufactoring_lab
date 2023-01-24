@@ -180,27 +180,28 @@ class manufacturing_laboratory():
     def start_process(self):
         # Start the cronometer
         in_production = 1
+        self.cronometer_running = True
+        thread_cronometer = threading.Thread(target=self.cronometer)
+        thread_cronometer.start()
         self.sense.show_message("Starting",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
         for in_production in range(self.to_produce):
             self.sense.show_message(f"Block # {in_production+1}", text_colour=[255, 135, 0], back_colour=[25, 25, 25])
-            self.cronometer_running = True
+            
             self.sensor_running = True
-            thread_cronometer = threading.Thread(target=self.cronometer)
-            thread_cronometer.start()
             thread_sensor = threading.Thread(target=self.vibration)
             thread_sensor.start()
             # Run the production line 1
             self.production_line()
-            # Finish the cronometer
-            self.cronometer_running = False
+            
             self.sensor_running = False
-            thread_cronometer.join()
             thread_sensor.join()
 
             self.sense.show_message(f" Finished {in_production} blocks in: {self.start_time_process:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])
             in_production += 1
 
         self.sense.show_message("FINISHED PRODUCTION", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
+        self.cronometer_running = False
+        thread_cronometer.join()
         return (f" The production of {self.to_produce} blocks has finished in {self.start_time_process:.2f} seconds , there are {self.count_approved} approved blocks and {self.count_rejected} rejected blocks, the line process detected {self.error_production} errors, with a max vibation of {self.max_vibration}")
 
     def testing_api(self):

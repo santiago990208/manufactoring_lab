@@ -254,7 +254,7 @@ class manufacturing_laboratory():
 
         return True
     
-    def testing_production_line(self, count):
+    def testing_production_line(self):
         #Set init point
         self.block_production()
         self.block_production(arm=2)

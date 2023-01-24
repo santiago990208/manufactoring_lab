@@ -69,8 +69,9 @@ class manufacturing_laboratory():
                 self.error_production += 1
                 self.max_vibration = self.accelerometer
                 #self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
-                self.sense.clear((255,0,0)) #red
-                time.sleep(1)
+                #self.sense.clear((255,0,0)) #red
+                self.sense.show_letter(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
+                time.sleep(2)
             else:
                 self.sense.clear((0,255,0)) #green
                 
@@ -181,8 +182,9 @@ class manufacturing_laboratory():
     def start_process(self):
         # Start the cronometer
         in_production = 1
-        self.sense.show_message("Starting process")
+        self.sense.show_message("Starting process",text_colour=[0, 0, 255], back_colour=[255, 255, 255])
         for in_production in range(self.to_produce):
+            self.sense.show_message(f"Production of block # {in_production}", text_colour=[0, 255, 0], back_colour=[255, 255, 255])
             self.cronometer_running = True
             self.sensor_running = True
             thread_cronometer = threading.Thread(target=self.cronometer)
@@ -199,8 +201,8 @@ class manufacturing_laboratory():
 
             print(f" Finished {in_production} blocks in: {self.start_time_process:.2f} seconds")
             in_production += 1
-            self.sense.show_message("Next block")
-            
+
+        self.sense.show_message("FINISH PRODUCTION", text_colour=[0, 0, 255], back_colour=[255, 255, 255])
         return (f" The production of {self.to_produce} has finished in {self.start_time_process:.2f} seconds , there are {self.count_approved} approved blocks and {self.count_rejected} rejected blocks, the line process detected {self.error_production} errors, with a max vibation of {self.max_vibration}")
 
     def testing_api(self):

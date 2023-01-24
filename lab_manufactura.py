@@ -70,8 +70,7 @@ class manufacturing_laboratory():
                 self.max_vibration = self.accelerometer
                 #self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
                 #self.sense.clear((255,0,0)) #red
-                self.sense.show_letter(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
-                time.sleep(2)
+                self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
             else:
                 self.sense.clear((0,255,0)) #green
                 

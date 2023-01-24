@@ -9,18 +9,26 @@ import threading
 
 class manufacturing_laboratory():
     #Constructor
-    def __init__(self, username = "", password ="", port_arm1= "" , port_arm2 = "", url_airpicker ="",url_laser ="",url_belt =""):
+    def __init__(self, username = "", password ="", to_produce = "",port_arm1= "" , port_arm2 = "", url_airpicker ="",url_laser ="",url_belt ="", url_vibration ="", url_counter_aproved = "", url_counter_rejected = ""):
         self.username = username
         self.password = password
+        self.to_produce = to_produce
         self.port_arm1 = port_arm1
         self.port_arm2 = port_arm2
         self.url_airpicker = url_airpicker
         self.url_laser = url_laser
         self.url_belt = url_belt
+        self.url_vibration = url_vibration
+        self.url_counter_aproved = url_counter_aproved
+        self.url_counter_rejected = url_counter_rejected
         self.headers = ""
         self.start_time_process = 0
         self.cronometer_running = False
         self.sensor_running = False
+        self.count_approved = 0
+        self.count_rejected = 0
+        self.accelerometer = 0
+        self.error_production = 0
 
 
     def conf_api_headers(self):
@@ -56,8 +64,10 @@ class manufacturing_laboratory():
             y = self.accelerometer["y"]
             z = self.accelerometer["z"]
             #print("x: {0},y: {1}, z: {2}".format(x,y,z))
-            
-            if (x > 1.5) or (y > 1.5) or (z > 1.5):
+            self.accelerometer = max(x, y, z)
+            if self.accelerometer > 1.5:
+                self.error_production += 1
+                self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
                 sense.clear((255,0,0))
             else:
                 sense.clear((0,255,0))
@@ -77,7 +87,7 @@ class manufacturing_laboratory():
             if not line:
                 break
             command = line.strip() + '\r'
-            print(command)
+            #print(command)
             dexarm._send_cmd(command)
         gcode_file.close()
 
@@ -85,22 +95,30 @@ class manufacturing_laboratory():
 
     def quality_control(self, count):
         gcode_path =''
-        if count == 1:
+        if self.error_production == 0:
+            self.count_approved += 1
             gcode_path = 'BELT_MOVEMENT_POS.txt'
             self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="block approved")
-            self.api_monitor(url= self.url_belt, machine_id="counter_aproved", counter=1)
+            self.api_monitor(url= self.url_counter_aproved, machine_id="counter_aproved", counter=self.count_approved)
         else:
+            self.count_rejected += 1
             gcode_path = 'BELT_MOVEMENT_NEG.txt'
             self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="block rejected")
-            self.api_monitor(url= self.url_belt, machine_id="counter_rejected", counter=1)
+            self.api_monitor(url= self.url_counter_rejected, machine_id="counter_rejected", counter=self.count_rejected)
         return gcode_path
 
-    def api_monitor(self, counter="",  url="", machine_id="airpicker1",  status="off"): 
+    def api_monitor(self, url="", machine_id="airpicker1",  status="off", counter="", accelerometer = ""): 
 
         if counter != "":
             data = {
                 "id": machine_id,
                 "counter":counter,
+                "start_time_process":  f"{self.start_time_process:.2f}",
+            }
+        elif accelerometer != "":
+            data = {
+                "id": machine_id,
+                "accelerometer":accelerometer,
                 "start_time_process":  f"{self.start_time_process:.2f}",
             }
         else:
@@ -115,7 +133,7 @@ class manufacturing_laboratory():
         print(response.status_code)
         return True
 
-    def production_line(self, count):
+    def production_line(self):
         #Set init point
         self.block_production()
         self.block_production(arm=2)
@@ -136,7 +154,7 @@ class manufacturing_laboratory():
         self.api_monitor(url= self.url_laser, machine_id="laser1", status="graving")
         
         #agregar vibracion de sensor en el laser para que no gabre el segundo 
-        if count == 1:
+        if self.error_production == 0:
             self.block_production("IoT.txt",2)
             print("gravando laser")
             
@@ -144,9 +162,9 @@ class manufacturing_laboratory():
         self.block_production("LASER_MOVEMENT_FINISH.txt",2)
         self.api_monitor(url= self.url_laser, machine_id="laser1", status="off")
 
-        #Pick bloxk and set it to quality control station
+        #Pick block and set it to quality control station
         self.api_monitor(url= self.url_airpicker, machine_id="airpicker1", status="block collocation for quality control")
-        self.block_production('BLOCK_MOVEMENT_TO_BELT.txt',1, count)
+        self.block_production('BLOCK_MOVEMENT_TO_BELT.txt',1)
         self.api_monitor(url= self.url_airpicker, machine_id="airpicker1", status="off")
 
         #Quality control
@@ -154,33 +172,31 @@ class manufacturing_laboratory():
         self.block_production(arm=3)
         self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="off")
 
-        return "Finish block"
+        return True
     
     def start_process(self):
         # Start the cronometer
-        count = 1
-        for count in range(2):
-
+        in_production = 1
+        for in_production in range(self.to_produce):
             self.cronometer_running = True
             self.sensor_running = True
-
             thread_cronometer = threading.Thread(target=self.cronometer)
             thread_cronometer.start()
             thread_sensor = threading.Thread(target=self.vibration)
             thread_sensor.start()
-
             # Run the production line 1
-            production_line = self.testing_production_line(count)
-            count += 1
+            self.testing_production_line()
             # Finish the cronometer
             self.cronometer_running = False
             self.sensor_running = False
             thread_cronometer.join()
             thread_sensor.join()
 
-            print(f" {production_line} in: {self.start_time_process:.2f} seconds")
+            print(f" Acce: {self.accelerometer},  Errors: {self.error_production} , Appro: {self.count_approved}, Rejec: {self.count_rejected}")
+            print(f" Finished {in_production} blocks in: {self.start_time_process:.2f} seconds")
+            in_production += 1
             
-        return "Finish 2 blocks productions"
+        return (f" The production of {self.to_produce} has finished in {self.start_time_process:.2f} seconds , there are {self.count_approved} approved blocks and {self.count_rejected} rejected blocks, the line process detected {self.error_production} errors")
 
     def testing_api(self):
         print(self.headers)
@@ -252,32 +268,18 @@ class manufacturing_laboratory():
         self.block_production("LASER_MOVEMENT_START.txt",2)
         
         #agregar vibracion de sensor en el laser para que no gabre el segundo 
-        if count == 1:
+        if self.error_production == 0:
+            self.block_production("IoT.txt",2)
             print("gravando laser")
             
-        
         self.block_production("LASER_MOVEMENT_FINISH.txt",2)
         
 
-        #Pick bloxk and set it to quality control station
-        
-        self.block_production('BLOCK_MOVEMENT_TO_BELT.txt',1, count)
-        
-
+        #Pick block and set it to quality control station
+        self.block_production('BLOCK_MOVEMENT_TO_BELT.txt',1)
         #Quality control
-       
         self.block_production(arm=3)
-        
 
-        return "Finish block"
-        
+        return True
 
-
-url_link_qualitycontrol = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Quality_Control_Connector"
-url_link_airpicker = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Airpicker_Connector"
-url_link_laser = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Laser_Connector"
-
-manufactory = manufacturing_laboratory(username = "iotadmin.00182", password ="IN#O9KiqQXMM", port_arm1= "COM13" , port_arm2 = "COM14", url_airpicker =url_link_airpicker,url_laser =url_link_laser,url_belt = url_link_qualitycontrol)
-
-manufactory.start_process()
 

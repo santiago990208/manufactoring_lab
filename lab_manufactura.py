@@ -27,6 +27,7 @@ class manufacturing_laboratory():
         self.sensor_running = False
         self.count_approved = 0
         self.count_rejected = 0
+        self.sense = SenseHat()
         self.accelerometer = 0
         self.max_vibration = 1.5 #put the max vibration to detect an error, it is a rule
         self.error_production = 0
@@ -57,10 +58,8 @@ class manufacturing_laboratory():
 
     def vibration(self):
         # Run the senser vibration in a new thread
-        sense = SenseHat()
-        sense.show_message("Starting")
         while self.sensor_running:
-            self.accelerometer = sense.get_accelerometer_raw()
+            self.accelerometer = self.sense.get_accelerometer_raw()
             x = self.accelerometer["x"]
             y = self.accelerometer["y"]
             z = self.accelerometer["z"]
@@ -70,10 +69,11 @@ class manufacturing_laboratory():
                 self.error_production += 1
                 self.max_vibration = self.accelerometer
                 #self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
-                sense.clear((255,0,0))
-            else:
-                sense.clear((0,255,0))
+                self.sense.clear((255,0,0)) #red
                 time.sleep(1)
+            else:
+                self.sense.clear((0,255,0)) #green
+                
 
     def block_production(self, gcode_path='RESET_POINT.txt', arm=1, count = 1):
         if arm == 1:
@@ -181,6 +181,7 @@ class manufacturing_laboratory():
     def start_process(self):
         # Start the cronometer
         in_production = 1
+        self.sense.show_message("Starting process")
         for in_production in range(self.to_produce):
             self.cronometer_running = True
             self.sensor_running = True
@@ -198,6 +199,7 @@ class manufacturing_laboratory():
 
             print(f" Finished {in_production} blocks in: {self.start_time_process:.2f} seconds")
             in_production += 1
+            self.sense.show_message("Next block")
             
         return (f" The production of {self.to_produce} has finished in {self.start_time_process:.2f} seconds , there are {self.count_approved} approved blocks and {self.count_rejected} rejected blocks, the line process detected {self.error_production} errors, with a max vibation of {self.max_vibration}")
 

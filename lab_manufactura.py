@@ -67,7 +67,7 @@ class manufacturing_laboratory():
             self.accelerometer = max(x, y, z)
             if self.accelerometer > 1.5:
                 self.error_production += 1
-                self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
+                #self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
                 sense.clear((255,0,0))
             else:
                 sense.clear((0,255,0))
@@ -79,7 +79,7 @@ class manufacturing_laboratory():
             dexarm = Dexarm(port=self.port_arm2)
         if arm == 3:
             dexarm = Dexarm(port=self.port_arm2)
-            gcode_path = self.quality_control(count)
+            gcode_path = self.quality_control()
 
         gcode_file = open(gcode_path, 'r')
         while True: 
@@ -93,18 +93,19 @@ class manufacturing_laboratory():
 
         return True
 
-    def quality_control(self, count):
+    def quality_control(self):
         gcode_path =''
+        print(f" Acce: {self.accelerometer},  Errors: {self.error_production} , Appro: {self.count_approved}, Rejec: {self.count_rejected}")
         if self.error_production == 0:
             self.count_approved += 1
             gcode_path = 'BELT_MOVEMENT_POS.txt'
-            self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="block approved")
-            self.api_monitor(url= self.url_counter_aproved, machine_id="counter_aproved", counter=self.count_approved)
+            # self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="block approved")
+            # self.api_monitor(url= self.url_counter_aproved, machine_id="counter_aproved", counter=self.count_approved)
         else:
             self.count_rejected += 1
             gcode_path = 'BELT_MOVEMENT_NEG.txt'
-            self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="block rejected")
-            self.api_monitor(url= self.url_counter_rejected, machine_id="counter_rejected", counter=self.count_rejected)
+            # self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="block rejected")
+            # self.api_monitor(url= self.url_counter_rejected, machine_id="counter_rejected", counter=self.count_rejected)
         return gcode_path
 
     def api_monitor(self, url="", machine_id="airpicker1",  status="off", counter="", accelerometer = ""): 
@@ -258,14 +259,14 @@ class manufacturing_laboratory():
         #Set init point
         self.block_production()
         self.block_production(arm=2)
-        # self.conf_api_headers()
+        self.conf_api_headers()
 
         # #Choose block and set to graving station
         
-        # self.block_production('BLOCK_MOVEMENT.txt',1)
+        self.block_production('BLOCK_MOVEMENT.txt',1)
 
         # #Graving station
-        # self.block_production("LASER_MOVEMENT_START.txt",2)
+        self.block_production("LASER_MOVEMENT_START.txt",2)
         
         #agregar vibracion de sensor en el laser para que no gabre el segundo 
         print("entering to condition ")

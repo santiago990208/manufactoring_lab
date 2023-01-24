@@ -44,8 +44,6 @@ class manufacturing_laboratory():
             "Content-Type": "application/json"
         }
 
-        print(self.headers)
-
         return self.headers
 
     def cronometer(self):
@@ -57,18 +55,18 @@ class manufacturing_laboratory():
             time.sleep(0.5)
 
     def vibration(self):
-        # Run the senser vibration in a new thread
+        # Run the sensor vibration in a new thread
         while self.sensor_running:
             self.accelerometer = self.sense.get_accelerometer_raw()
             x = self.accelerometer["x"]
             y = self.accelerometer["y"]
             z = self.accelerometer["z"]
-            #print("x: {0},y: {1}, z: {2}".format(x,y,z))
+
             self.accelerometer = max(x, y, z)
             if self.accelerometer > self.max_vibration:
                 self.error_production += 1
                 self.max_vibration = self.accelerometer
-                #self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
+                self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
                 self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
             else:
                 self.sense.clear((0,255,0)) #green
@@ -89,7 +87,6 @@ class manufacturing_laboratory():
             if not line:
                 break
             command = line.strip() + '\r'
-            print(command)
             dexarm._send_cmd(command)
         gcode_file.close()
 
@@ -97,44 +94,49 @@ class manufacturing_laboratory():
 
     def quality_control(self):
         gcode_path =''
-        print(f" Acce: {self.accelerometer},  Errors: {self.error_production} , Appro: {self.count_approved}, Rejec: {self.count_rejected}")
         if self.error_production == 0:
             self.count_approved += 1
             gcode_path = 'BELT_MOVEMENT_POS.txt'
-            # self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="block approved")
-            # self.api_monitor(url= self.url_counter_aproved, machine_id="counter_aproved", counter=self.count_approved)
+            self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="block approved")
+            self.api_monitor(url= self.url_counter_aproved, machine_id="counter_aproved", counter=self.count_approved)
         else:
             self.count_rejected += 1
             gcode_path = 'BELT_MOVEMENT_NEG.txt'
-            # self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="block rejected")
-            # self.api_monitor(url= self.url_counter_rejected, machine_id="counter_rejected", counter=self.count_rejected)
+            self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="block rejected")
+            self.api_monitor(url= self.url_counter_rejected, machine_id="counter_rejected", counter=self.count_rejected)
         return gcode_path
 
     def api_monitor(self, url="", machine_id="airpicker1",  status="off", counter="", accelerometer = ""): 
+        try:
+            if url == "":
+                raise ValueError("The URL cannot be empty.")
 
-        if counter != "":
-            data = {
-                "id": machine_id,
-                "counter":counter,
-                "start_time_process":  f"{self.start_time_process:.2f}",
-            }
-        elif accelerometer != "":
-            data = {
-                "id": machine_id,
-                "accelerometer":accelerometer,
-                "start_time_process":  f"{self.start_time_process:.2f}",
-            }
-        else:
-            data = {
-                "id": machine_id,
-                "status":status,
-                "start_time_process": f"{self.start_time_process:.2f}",
-            }
+            if counter != "":
+                data = {
+                    "id": machine_id,
+                    "counter":counter,
+                    "start_time_process":  f"{self.start_time_process:.2f}",
+                }
+            elif accelerometer != "":
+                data = {
+                    "id": machine_id,
+                    "accelerometer":accelerometer,
+                    "start_time_process":  f"{self.start_time_process:.2f}",
+                }
+            else:
+                data = {
+                    "id": machine_id,
+                    "status":status,
+                    "start_time_process": f"{self.start_time_process:.2f}",
+                }
 
-        json_data = json.dumps(data)
-        response = requests.post(url, headers=self.headers, data=json_data, verify=False)
-        print(response.status_code)
-        return True
+            json_data = json.dumps(data)
+            response = requests.post(url, headers=self.headers, data=json_data, verify=False)
+            return print(response)
+        except ValueError as e:
+            return print("An error occurred: ", e)
+        except Exception as e:
+            return print("An error occurred while sending the request: ", e)
 
     def production_line(self):
         #Set init point
@@ -146,7 +148,6 @@ class manufacturing_laboratory():
         self.api_monitor(url= self.url_belt, machine_id="qualitycontrol1", status="off")
 
         #Choose block and set to graving station
-        
         self.api_monitor(url= self.url_airpicker, machine_id="airpicker1", status="block collocation for graving")
         self.block_production('BLOCK_MOVEMENT.txt',1)
         self.api_monitor(url= self.url_airpicker, machine_id="airpicker1", status="off")
@@ -156,10 +157,9 @@ class manufacturing_laboratory():
         self.block_production("LASER_MOVEMENT_START.txt",2)
         self.api_monitor(url= self.url_laser, machine_id="laser1", status="graving")
         
-        #agregar vibracion de sensor en el laser para que no gabre el segundo 
+        #check if is there an error, it would not grave the block 
         if self.error_production == 0:
             self.block_production("IoT.txt",2)
-            print("gravando laser")
             
         self.api_monitor(url= self.url_laser, machine_id="laser1", status="finish graving")
         self.block_production("LASER_MOVEMENT_FINISH.txt",2)
@@ -190,14 +190,14 @@ class manufacturing_laboratory():
             thread_sensor = threading.Thread(target=self.vibration)
             thread_sensor.start()
             # Run the production line 1
-            self.testing_production_line()
+            self.production_line()
             # Finish the cronometer
             self.cronometer_running = False
             self.sensor_running = False
             thread_cronometer.join()
             thread_sensor.join()
 
-            print(f" Finished {in_production} blocks in: {self.start_time_process:.2f} seconds")
+            self.sense.show_message(f" Finished {in_production} blocks in: {self.start_time_process:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])
             in_production += 1
 
         self.sense.show_message("FINISHED PRODUCTION", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
@@ -230,12 +230,18 @@ class manufacturing_laboratory():
             "counter":"1",
             "start_time_process": "2",
         }
+        data_6 = {
+            "id": "graving_base",
+            "accelerometer":"1.5",
+            "start_time_process": "2",
+        }
 
         json_data_1 = json.dumps(data_1)
         json_data_2 = json.dumps(data_2)
         json_data_3 = json.dumps(data_3)
         json_data_4 = json.dumps(data_4)
         json_data_5 = json.dumps(data_5)
+        json_data_6 = json.dumps(data_6)
 
         print(json_data_1)
         response_1 = requests.post(url=self.url_airpicker, headers=self.headers, data=json_data_1, verify=False)
@@ -257,6 +263,10 @@ class manufacturing_laboratory():
         response_5 = requests.post(url=self.url_belt, headers=self.headers, data=json_data_5, verify=False)
         print(response_5)
 
+        print(json_data_6)
+        response_6 = requests.post(url=self.url_belt, headers=self.headers, data=json_data_6, verify=False)
+        print(response_6)
+
         return True
     
     def testing_production_line(self):
@@ -266,7 +276,7 @@ class manufacturing_laboratory():
         self.conf_api_headers()
 
         # #Choose block and set to graving station
-        
+    
         self.block_production('BLOCK_MOVEMENT.txt',1)
 
         # #Graving station

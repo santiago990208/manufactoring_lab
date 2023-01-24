@@ -132,7 +132,7 @@ class manufacturing_laboratory():
 
             json_data = json.dumps(data)
             response = requests.post(url, headers=self.headers, data=json_data, verify=False)
-            return print(response)
+            return True
         except ValueError as e:
             return print("An error occurred: ", e)
         except Exception as e:

@@ -200,8 +200,8 @@ class manufacturing_laboratory():
             print(f" Finished {in_production} blocks in: {self.start_time_process:.2f} seconds")
             in_production += 1
 
-        self.sense.show_message("FINISH PRODUCTION", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
-        return (f" The production of {self.to_produce} has finished in {self.start_time_process:.2f} seconds , there are {self.count_approved} approved blocks and {self.count_rejected} rejected blocks, the line process detected {self.error_production} errors, with a max vibation of {self.max_vibration}")
+        self.sense.show_message("FINISHED PRODUCTION", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
+        return (f" The production of {self.to_produce} blocks has finished in {self.start_time_process:.2f} seconds , there are {self.count_approved} approved blocks and {self.count_rejected} rejected blocks, the line process detected {self.error_production} errors, with a max vibation of {self.max_vibration}")
 
     def testing_api(self):
         print(self.headers)

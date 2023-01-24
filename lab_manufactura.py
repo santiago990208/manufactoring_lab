@@ -69,9 +69,9 @@ class manufacturing_laboratory():
                 self.error_production += 1
                 self.max_vibration = self.accelerometer
                 #self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
-                self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[25, 25, 25], back_colour=[255, 0, 0])
+                self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
             else:
-                self.sense.clear((0,255,0)) #green
+                self.sense.clear((0,255,255)) #green
                 
 
     def block_production(self, gcode_path='RESET_POINT.txt', arm=1, count = 1):

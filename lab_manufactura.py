@@ -71,7 +71,7 @@ class manufacturing_laboratory():
                 #self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
                 self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
             else:
-                self.sense.clear((0,255,255)) #green
+                self.sense.clear((0,255,0)) #green
                 
 
     def block_production(self, gcode_path='RESET_POINT.txt', arm=1, count = 1):
@@ -180,9 +180,9 @@ class manufacturing_laboratory():
     def start_process(self):
         # Start the cronometer
         in_production = 1
-        self.sense.show_message("Starting process",text_colour=[0, 0, 255], back_colour=[25, 25, 25])
+        self.sense.show_message("Starting",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
         for in_production in range(self.to_produce):
-            self.sense.show_message(f"Block # {in_production+1}", text_colour=[0, 135, 0], back_colour=[25, 25, 25])
+            self.sense.show_message(f"Block # {in_production+1}", text_colour=[255, 135, 0], back_colour=[25, 25, 25])
             self.cronometer_running = True
             self.sensor_running = True
             thread_cronometer = threading.Thread(target=self.cronometer)
@@ -200,7 +200,7 @@ class manufacturing_laboratory():
             print(f" Finished {in_production} blocks in: {self.start_time_process:.2f} seconds")
             in_production += 1
 
-        self.sense.show_message("FINISH PRODUCTION", text_colour=[0, 0, 255], back_colour=[25, 25, 25])
+        self.sense.show_message("FINISH PRODUCTION", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
         return (f" The production of {self.to_produce} has finished in {self.start_time_process:.2f} seconds , there are {self.count_approved} approved blocks and {self.count_rejected} rejected blocks, the line process detected {self.error_production} errors, with a max vibation of {self.max_vibration}")
 
     def testing_api(self):

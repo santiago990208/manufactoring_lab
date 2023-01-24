@@ -28,6 +28,7 @@ class manufacturing_laboratory():
         self.count_approved = 0
         self.count_rejected = 0
         self.accelerometer = 0
+        self.max_vibration = 1.5 #put the max vibration to detect an error, it is a rule
         self.error_production = 0
 
 
@@ -65,12 +66,14 @@ class manufacturing_laboratory():
             z = self.accelerometer["z"]
             #print("x: {0},y: {1}, z: {2}".format(x,y,z))
             self.accelerometer = max(x, y, z)
-            if self.accelerometer > 1.5:
+            if self.accelerometer > self.max_vibration:
                 self.error_production += 1
+                self.max_vibration = self.accelerometer
                 #self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
                 sense.clear((255,0,0))
             else:
                 sense.clear((0,255,0))
+                time.sleep(1)
 
     def block_production(self, gcode_path='RESET_POINT.txt', arm=1, count = 1):
         if arm == 1:
@@ -193,11 +196,10 @@ class manufacturing_laboratory():
             thread_cronometer.join()
             thread_sensor.join()
 
-            print(f" Acce: {self.accelerometer},  Errors: {self.error_production} , Appro: {self.count_approved}, Rejec: {self.count_rejected}")
             print(f" Finished {in_production} blocks in: {self.start_time_process:.2f} seconds")
             in_production += 1
             
-        return (f" The production of {self.to_produce} has finished in {self.start_time_process:.2f} seconds , there are {self.count_approved} approved blocks and {self.count_rejected} rejected blocks, the line process detected {self.error_production} errors")
+        return (f" The production of {self.to_produce} has finished in {self.start_time_process:.2f} seconds , there are {self.count_approved} approved blocks and {self.count_rejected} rejected blocks, the line process detected {self.error_production} errors, with a max vibation of {self.max_vibration}")
 
     def testing_api(self):
         print(self.headers)
@@ -271,7 +273,6 @@ class manufacturing_laboratory():
         #agregar vibracion de sensor en el laser para que no gabre el segundo 
         if self.error_production == 0:
             self.block_production("IoT.txt",2)
-            print("gravando laser")
             
         self.block_production("LASER_MOVEMENT_FINISH.txt",2)
         

@@ -87,7 +87,7 @@ class manufacturing_laboratory():
             if not line:
                 break
             command = line.strip() + '\r'
-            #print(command)
+            print(command)
             dexarm._send_cmd(command)
         gcode_file.close()
 
@@ -258,19 +258,20 @@ class manufacturing_laboratory():
         #Set init point
         self.block_production()
         self.block_production(arm=2)
-        self.conf_api_headers()
+        # self.conf_api_headers()
 
-        #Choose block and set to graving station
+        # #Choose block and set to graving station
         
-        self.block_production('BLOCK_MOVEMENT.txt',1)
+        # self.block_production('BLOCK_MOVEMENT.txt',1)
 
-        #Graving station
-        self.block_production("LASER_MOVEMENT_START.txt",2)
+        # #Graving station
+        # self.block_production("LASER_MOVEMENT_START.txt",2)
         
         #agregar vibracion de sensor en el laser para que no gabre el segundo 
         print("entering to condition ")
         print(self.error_production)
         if self.error_production == 0:
+            print("gravando laser")
             self.block_production("IoT.txt",2)
             print("gravando laser")
             

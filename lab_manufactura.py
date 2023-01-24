@@ -268,6 +268,7 @@ class manufacturing_laboratory():
         self.block_production("LASER_MOVEMENT_START.txt",2)
         
         #agregar vibracion de sensor en el laser para que no gabre el segundo 
+        print("entering to condition "+self.error_production)
         if self.error_production == 0:
             self.block_production("IoT.txt",2)
             print("gravando laser")

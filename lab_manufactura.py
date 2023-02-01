@@ -87,7 +87,7 @@ class manufacturing_laboratory():
                 self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
                 self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
             else:
-                self.sense.clear((0,255,0)) #green
+                self.sense.clear((0,0,0)) #green
                 
     def workorder_start(self):    
         while self.workorder_listening:
@@ -288,9 +288,12 @@ class manufacturing_laboratory():
     def on_lab(self):
         self.conf_api_headers()
         print(self.headers)
-        self.workorder_listening = True
-        thread_workorders = threading.Thread(target=self.workorder_start)
-        thread_workorders.start()
+        #self.workorder_listening = True
+        #thread_workorders = threading.Thread(target=self.workorder_start)
+        #thread_workorders.start()
+        self.sensor_running = True
+        thread_sensor = threading.Thread(target=self.vibration)
+        thread_sensor.start()
         return True
 
     def testing_start(self):

@@ -2,7 +2,7 @@ import json
 import requests
 import base64
 import datetime
-from rich import print
+#from rich import print
 url_api = "http://iotdemo00182.cna.phx.demoservices005.iot.oraclepdemos.com/productionMonitoring/clientapi/v2/workOrders"
 query = '?q={"systemState": { "$like":"RELEASED" } }'
 url = url_api+query
@@ -64,6 +64,13 @@ data= {
     "endTime": 1674762420000 #unix
 }
 
+
+data = {
+    "id": "airpickerState",
+    "state":"INUSE",
+    "startTime":  f"10.2",
+}
+
 json_data = json.dumps(data)
 print(json_data)
-print(requests.post(url_production_line, headers=headers, data=json_data, verify=False))
+print(requests.post(url_link_airpicker, headers=headers, data=json_data, verify=False))

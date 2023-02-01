@@ -1,17 +1,23 @@
 from lab_manufactura import manufacturing_laboratory
 
+#params or auth and id of organization Supremo
 username = "iotadmin.00182"
-password = "IN#O9KiqQXMM"
-to_produce = 2
+password = "YTmIj#4g0kmG"
+org_id = "6BNYV2GM1F1G"
+
+#serial port where the arms are connected, we listed with the command etc.
 port_arm_airpicker= "/dev/ttyACM1"
 port_arm_laser = "/dev/ttyACM0"
-url_link_qualitycontrol = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Quality_Control_Connector"
-url_link_airpicker = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Airpicker_Connector"
-url_link_laser = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/Laser_Connector"
-url_link_vibration = ""
-url_link_aproved = ""
-url_link_rejected = ""
 
-manufactory = manufacturing_laboratory(username = username, password = password, to_produce = to_produce, port_arm1= port_arm_airpicker , port_arm2 = port_arm_laser, url_airpicker =url_link_airpicker,url_laser =url_link_laser,url_belt = url_link_qualitycontrol, url_vibration =url_link_vibration, url_counter_aproved = url_link_aproved, url_counter_rejected = url_link_rejected)
+#urls of the api and the devices connectors
+url_api = "http://iotdemo00182.cna.phx.demoservices005.iot.oraclepdemos.com/productionMonitoring/clientapi/v2/workOrders" #the q is for the query, filtering only the ones with released
+url_link_airpicker = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/airpickerConnector"
+url_link_laser = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/laserConnector"
+url_link_qualitycontrol = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/qualitycontrolConnector"
+url_production_line = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/productionlineController"
 
-print(manufactory.start_process())
+
+manufactory = manufacturing_laboratory(username = username, password =password, org_id = org_id, port_arm1= "" , port_arm2 = "", url_api =url_api, url_airpicker = url_link_airpicker,url_laser =url_link_laser,url_belt =url_link_qualitycontrol, url_production_line = url_production_line)
+
+manufactory.on_lab()
+

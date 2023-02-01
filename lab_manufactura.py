@@ -210,8 +210,8 @@ class manufacturing_laboratory():
                     "gravingCheck":gravingCheck,
                     "blockApproved": self.blockApproved,
                     "blockRejected": self.blockRejected,
-                    "startTime":  time.time(self.start_time_proccess),
-                    "endTime":  time.time(datetime.datetime.utcnow()),
+                    "startTime":  int(time.time()),#add the start_time
+                    "endTime":  int(time.time()),
                 }
 
             json_data = json.dumps(data)

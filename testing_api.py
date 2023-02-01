@@ -53,21 +53,17 @@ url_link_qualitycontrol = "https://iotdemo00182.device.cna.phx.demoservices005.i
 url_production_line = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/productionlineController"
 data= {
     "id": "qualityControl",
+    "factory": "300000178327892", 
     "state": "IDLE",
+    "product": "6C8T01CM1CYG", 
+    "quantity": 10.0,#total dinamic
     "gravingCheck": "approved",
-    "startTime": "146.69"
+    "blockApproved": 9, #dinamic counter
+    "blockRejected": 1,#dinamic counter
+    "startTime": 1674755220000,#unix
+    "endTime": 1674762420000 #unix
 }
 
-data = {
-    "id": "productionLine",
-    "product": "6C8T01CM1CYG", 
-    "quantity": 10.0,
-    "factory": "300000178327892", 
-    "blockApproved": 9,
-    "blockRejected": 1,
-    "startTime": 1674755220000,
-    "endTime": 1674762420000
-}
 json_data = json.dumps(data)
 print(json_data)
 print(requests.post(url_production_line, headers=headers, data=json_data, verify=False))

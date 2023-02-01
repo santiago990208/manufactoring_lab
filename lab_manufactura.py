@@ -201,22 +201,17 @@ class manufacturing_laboratory():
                     "startTime":  f"{self.cronometer_time:.2f}",
                 }
             if machine_id == "qualityControl":
-                data = {
+                data= {
                     "id": machine_id,
-                    "state":status,
-                    "gravingCheck":gravingCheck,
-                    "startTime":  f"{self.cronometer_time:.2f}",
-                }
-            if machine_id == "productionLine":
-                data = {
-                    "id": machine_id,
-                    "product": self.productId, #Product identifier for the product that was produced
-                    "quantity": self.to_produce, #Quantity of the product produced.
                     "factory": self.factory, #The value specified should be a registered factory identifier.
+                    "state":status,
+                    "product": self.productId, #Product identifier for the product that was produced
+                    "quantity": self.blockApproved+self.blockRejected, #Quantity of the product produced.
+                    "gravingCheck":gravingCheck,
                     "blockApproved": self.blockApproved,
                     "blockRejected": self.blockRejected,
-                    "startTime":  f"{self.cronometer_time:.2f}",
-                    "endTime":  f"{self.cronometer_time:.2f}",
+                    "startTime":  time.time(self.start_time_proccess),
+                    "endTime":  time.time(datetime.datetime.utcnow()),
                 }
 
             json_data = json.dumps(data)
@@ -313,7 +308,7 @@ class manufacturing_laboratory():
             thread_sensor.start()
             #Run the production line 1
             self.testing_api_production_line()
-            self.testing_production_line()
+            #self.testing_production_line()
             
             self.sensor_running = False
             thread_sensor.join()

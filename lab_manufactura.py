@@ -1,6 +1,6 @@
 from pydexarm import Dexarm
 from rich import print
-#from sense_hat import SenseHat
+from sense_hat import SenseHat
 import random
 import requests
 import base64
@@ -39,7 +39,7 @@ class manufacturing_laboratory():
         #rules
         self.max_vibration = 1.5 #put the max vibration to detect an error, it is a rule
         self.accelerometer = 0
-        #self.sense = SenseHat()
+        self.sense = SenseHat()
         #work order status and info
         self.start_time_proccess = datetime.datetime.utcnow()
         self.workorderId= ""
@@ -54,7 +54,6 @@ class manufacturing_laboratory():
         auth_string = f"{self.username}:{self.password}"
         auth_bytes = auth_string.encode("utf-8")
         b64_auth_string = base64.b64encode(auth_bytes).decode("utf-8")
-        # org_id = "6BNYV2GM1F1G"
 
         self.headers = {
             "Authorization": f"Basic {b64_auth_string}",
@@ -303,23 +302,23 @@ class manufacturing_laboratory():
         self.cronometer_running = True
         thread_cronometer = threading.Thread(target=self.cronometer)
         thread_cronometer.start()
-        #self.sense.show_message("Starting work order",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
+        self.sense.show_message("Starting work order",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
         print("[bold blue]Starting work order[/bold blue] ")
         for in_production in range(1,int(self.to_produce)+1):
-            #self.sense.show_message(f"Block # {in_production}", text_colour=[255, 135, 0], back_colour=[25, 25, 25])
+            self.sense.show_message(f"Block # {in_production}", text_colour=[255, 135, 0], back_colour=[25, 25, 25])
             print(f"[bold green]Block # {in_production}[/bold green]")
             
-            # self.sensor_running = True
-            # thread_sensor = threading.Thread(target=self.vibration)
-            # thread_sensor.start()
-            # Run the production line 1
+            self.sensor_running = True
+            thread_sensor = threading.Thread(target=self.vibration)
+            thread_sensor.start()
+            #Run the production line 1
             self.testing_api_production_line()
-            #self.testing_production_line()
+            self.testing_production_line()
             
-            # self.sensor_running = False
-            # thread_sensor.join()
+            self.sensor_running = False
+            thread_sensor.join()
 
-            #self.sense.show_message(f" Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])
+            self.sense.show_message(f" Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])
             print(f"[bold green]Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds[/bold green]")
         #self.sense.show_message("FINISHED work order", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
         print(f"[bold blue]FINISHED work order[/bold blue]")

@@ -83,6 +83,7 @@ class manufacturing_laboratory():
             self.accelerometer = max(x, y, z)
             if self.accelerometer > self.max_vibration:
                 self.error_production += 1
+                print(self.error_production)
                 self.max_vibration = self.accelerometer
                 self.api_monitor(url = self.url_vibration, machine_id="graving_base", accelerometer = self.accelerometer)
                 self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])

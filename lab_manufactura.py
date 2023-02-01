@@ -87,7 +87,7 @@ class manufacturing_laboratory():
                 self.max_vibration = self.accelerometer
                 self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
             else:
-                self.sense.clear((0,0,0)) #green
+                self.sense.clear((0,150,0)) #green
                 
     def workorder_start(self):    
         while self.workorder_listening:

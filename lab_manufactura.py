@@ -286,9 +286,12 @@ class manufacturing_laboratory():
     def on_lab(self):
         self.conf_api_headers()
         print(self.headers)
-        self.workorder_listening = True
-        thread_workorders = threading.Thread(target=self.workorder_start)
-        thread_workorders.start()
+        #self.workorder_listening = True
+        #thread_workorders = threading.Thread(target=self.workorder_start)
+        #thread_workorders.start()
+        self.sensor_running = True
+        thread_sensor = threading.Thread(target=self.vibration)
+        thread_sensor.start()
         return True
 
     def testing_start(self):

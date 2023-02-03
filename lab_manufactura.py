@@ -191,14 +191,12 @@ class manufacturing_laboratory():
                 data = {
                     "id": machine_id,
                     "state":status,
-                    "startTime":  f"{self.cronometer_time:.2f}",
                 }
             if machine_id == "laserState":
                 data = {
                     "id": machine_id,
                     "state":status,
                     "accelerometer":accelerometer,
-                    "startTime":  f"{self.cronometer_time:.2f}",
                 }
             if machine_id == "qualityControl":
                 data= {
@@ -210,7 +208,7 @@ class manufacturing_laboratory():
                     "gravingCheck":gravingCheck,
                     "blockApproved": self.blockApproved,
                     "blockRejected": self.blockRejected,
-                    "startTime":  int(time.time()),#add the start_time
+                    "startTime":  int(self.start_time_proccess.timestamp),#add the start_time
                     "endTime":  int(time.time()),
                 }
 
@@ -288,12 +286,9 @@ class manufacturing_laboratory():
     def on_lab(self):
         self.conf_api_headers()
         print(self.headers)
-        #self.workorder_listening = True
-        #thread_workorders = threading.Thread(target=self.workorder_start)
-        #thread_workorders.start()
-        self.sensor_running = True
-        thread_sensor = threading.Thread(target=self.vibration)
-        thread_sensor.start()
+        self.workorder_listening = True
+        thread_workorders = threading.Thread(target=self.workorder_start)
+        thread_workorders.start()
         return True
 
     def testing_start(self):
@@ -318,7 +313,7 @@ class manufacturing_laboratory():
 
             self.sense.show_message(f" Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])
             print(f"[bold green]Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds[/bold green]")
-        #self.sense.show_message("FINISHED work order", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
+        self.sense.show_message("FINISHED work order", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
         print(f"[bold blue]FINISHED work order[/bold blue]")
         
         self.cronometer_running = False

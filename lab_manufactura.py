@@ -196,13 +196,18 @@ class manufacturing_laboratory():
                 data = {
                     "id": machine_id,
                     "state":status,
-                    "accelerometer":accelerometer,
+                    "accelerometer":int(accelerometer),
                 }
             if machine_id == "qualityControl":
                 data= {
                     "id": machine_id,
                     "factory": self.factory, #The value specified should be a registered factory identifier.
                     "state":status,
+                    "gravingCheck":gravingCheck,
+                }
+            if machine_id == "productionLine":
+                data = {
+                    "id": machine_id,
                     "product": self.productId, #Product identifier for the product that was produced
                     "quantity": self.blockApproved+self.blockRejected, #Quantity of the product produced.
                     "gravingCheck":gravingCheck,

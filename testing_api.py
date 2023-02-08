@@ -2,10 +2,10 @@ import json
 import requests
 import base64
 import datetime
-#from rich import print
+from rich import print
 url_api = "http://iotdemo00182.cna.phx.demoservices005.iot.oraclepdemos.com/productionMonitoring/clientapi/v2/workOrders"
 query = '?q={"systemState": { "$like":"RELEASED" } }'
-url = url_api+query
+url = url_api#+query
 
 username = "iotadmin.00182"
 password = "E5bc#m3VgXah"
@@ -28,21 +28,22 @@ response = requests.get(url, headers=headers, verify=False)
 workorder = ""
 if response.status_code == 200:
     data = response.json()
-    workorder = data['items'][0]
+    #workorder = data['items'][0]
     now = datetime.datetime.utcnow()
-    
-    planned_start_time = datetime.datetime.fromtimestamp(round(workorder["plannedStartTime"] / 1000)) # format to compare wiuth now time
-    # b = datetime.datetime.fromtimestamp(round(workorder["plannedEndTime"] / 1000))
-    planned_quantity = workorder["plannedQuantity"]
-    # d = workorder["systemState"]
-    if now > planned_start_time:
-        print(f'send order of: {planned_quantity:.0f} blocks')
+    for workorder in data['items']:
+        print(workorder["state"])
+        planned_start_time = datetime.datetime.fromtimestamp(round(workorder["plannedStartTime"] / 1000)) # format to compare wiuth now time
+        # b = datetime.datetime.fromtimestamp(round(workorder["plannedEndTime"] / 1000))
+        planned_quantity = workorder["plannedQuantity"]
+        # d = workorder["systemState"]
+        if now > planned_start_time:
+            print(f'send order of: {planned_quantity:.0f} blocks')
 
 else:
     print("Request failed with status code: {}".format(response.status_code))
 
 
-print(workorder)
+
 # AirpickerProductionMonitoringMachineState
 # Airpicker Production Monitoring Machine State device model
 #urn:com:supremomanufactoring:airpickerdevice:airpickerblock
@@ -75,6 +76,6 @@ data = {
 
 json_data = json.dumps(data)
 print(json_data)
-a = requests.post(url_link_qualitycontrol, headers=headers, data=json_data, verify=False)
-print(a.reason)
-print(a)
+# a = requests.post(url_link_qualitycontrol, headers=headers, data=json_data, verify=False)
+# print(a.reason)
+# print(a)

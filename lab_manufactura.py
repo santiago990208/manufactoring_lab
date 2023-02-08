@@ -112,7 +112,7 @@ class manufacturing_laboratory():
                         
                         if self.update_work_order(state="IN_PROCESS"):
                             print(f'send order of: {self.to_produce:.0f} blocks') #trigger production
-                            self.testing_start()
+                            self.start_workorder()
                             self.workorder_listening = False #stops listening while the proccess is completed
                         else:
                             raise ValueError("Error on updating work order status")
@@ -123,6 +123,7 @@ class manufacturing_laboratory():
                 return print("An error occurred while sending the request: ", e)
 
     def update_work_order(self, state="IN_PROCESS"):
+        # No change the work order, the step of the work order.
         try:
             workerOrder_id = f"/{self.workorderId}"
             if self.url_api == "":
@@ -135,7 +136,7 @@ class manufacturing_laboratory():
             if state == "COMPLETED":
                 data = {
                     "actualEndTime": int(time.time()),
-                    "systemState": "RELEASED", #COMPLETED
+                    "systemState": state, #COMPLETED
                 }
             
             json_data = json.dumps(data)
@@ -205,6 +206,7 @@ class manufacturing_laboratory():
                     "state":status,
                     "gravingCheck":gravingCheck,
                 }
+            # LOOK TO SEND INFO OF PRODUCTION COMPLETE PRODUCTS TO PM
             if machine_id == "productionLine":
                 data = {
                     "id": machine_id,
@@ -234,16 +236,14 @@ class manufacturing_laboratory():
         self.api_monitor(url= self.url_laser, machine_id="laserState", status="IDLE", accelerometer=self.accelerometer)
         self.api_monitor(url= self.url_belt, machine_id="qualityControl", status="IDLE", gravingCheck="")
 
-        #Choose block and set to graving station
+        # #Choose block and set to graving station
         self.api_monitor(url= self.url_airpicker, machine_id="airpickerState", status="INUSE")
         self.block_production('BLOCK_MOVEMENT.txt',1)
         self.api_monitor(url= self.url_airpicker, machine_id="airpickerState", status="IDLE")
-
-        #Graving station
+        # #Graving station
         self.api_monitor(url= self.url_laser, machine_id="laserState", status="INUSE", accelerometer=self.accelerometer)
         self.block_production("LASER_MOVEMENT_START.txt",2)
         
-        #check if is there an error, it would not grave the block 
         if self.error_production == 0:
             self.block_production("IoT.txt",2)
             self.block_production("LASER_MOVEMENT_FINISH.txt",2)
@@ -251,7 +251,7 @@ class manufacturing_laboratory():
         else:
             self.api_monitor(url= self.url_laser, machine_id="laserState", status="DOWN", accelerometer=self.accelerometer)
             self.block_production("LASER_MOVEMENT_FINISH.txt",2)
-            
+
         #Pick block and set it to quality control station
         self.api_monitor(url= self.url_airpicker, machine_id="airpickerState", status="INUSE")
         self.block_production('BLOCK_MOVEMENT_TO_BELT.txt',1)
@@ -261,45 +261,22 @@ class manufacturing_laboratory():
         self.block_production(arm=3)
         self.api_monitor(url= self.url_belt, machine_id="qualityControl", status="IDLE", gravingCheck="")
 
+        #Pick block and set it to quality control station
+        self.block_production('BLOCK_MOVEMENT_TO_BELT.txt',1)
+        #Quality control
+        self.block_production(arm=3)
+
         return True
     
-    def start_process(self):
-        # Start the cronometer
-        self.cronometer_running = True
-        thread_cronometer = threading.Thread(target=self.cronometer)
-        thread_cronometer.start()
-        self.sense.show_message("Starting work order",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
-        for in_production in range(1,self.to_produce+1):
-            self.sense.show_message(f"Block # {in_production}", text_colour=[255, 135, 0], back_colour=[25, 25, 25])
-            
-            self.sensor_running = True
-            thread_sensor = threading.Thread(target=self.vibration)
-            thread_sensor.start()
-            # Run the production line 1
-            self.production_line()
-            
-            self.sensor_running = False
-            thread_sensor.join()
-
-            self.sense.show_message(f" Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])
-
-        self.sense.show_message("FINISHED work order", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
-        self.cronometer_running = False
-        thread_cronometer.join()
-        return (f"The work order of {self.to_produce} blocks has finished in {self.cronometer_time:.2f} seconds , there are {self.blockApproved} approved blocks and {self.blockRejected} rejected blocks, the line process detected {self.error_production} errors, with a max vibation of {self.max_vibration}")
-
     def on_lab(self):
         self.conf_api_headers()
         print(self.headers)
-        #self.workorder_listening = True
-        #thread_workorders = threading.Thread(target=self.workorder_start)
-        #thread_workorders.start()
-        self.sensor_running = True
-        thread_sensor = threading.Thread(target=self.vibration)
-        thread_sensor.start()
+        self.workorder_listening = True
+        thread_workorders = threading.Thread(target=self.workorder_start)
+        thread_workorders.start()
         return True
 
-    def testing_start(self):
+    def start_workorder(self):
         self.cronometer_running = True
         thread_cronometer = threading.Thread(target=self.cronometer)
         thread_cronometer.start()
@@ -315,6 +292,7 @@ class manufacturing_laboratory():
             #Run the production line 1
             self.testing_api_production_line()
             #self.testing_production_line()
+            #self.production_line
             
             self.sensor_running = False
             thread_sensor.join()

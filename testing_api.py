@@ -31,7 +31,7 @@ if response.status_code == 200:
     #workorder = data['items'][0]
     now = datetime.datetime.utcnow()
     for workorder in data['items']:
-        print(workorder["state"])
+        print(workorder["systemState"])
         planned_start_time = datetime.datetime.fromtimestamp(round(workorder["plannedStartTime"] / 1000)) # format to compare wiuth now time
         # b = datetime.datetime.fromtimestamp(round(workorder["plannedEndTime"] / 1000))
         planned_quantity = workorder["plannedQuantity"]

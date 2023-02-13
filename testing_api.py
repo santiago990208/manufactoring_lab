@@ -9,7 +9,7 @@ query = '?q={"systemState": { "$like":"UNRELEASED" } }'
 url = url_api#+query
 
 username = "iotadmin.00182"
-password = "E5bc#m3VgXah"
+password = "ailhIA0#ZSii"
 
 org_id = "6BNYV2GM1F1G"
 

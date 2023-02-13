@@ -1,6 +1,6 @@
 from pydexarm import Dexarm
 from rich import print
-from sense_hat import SenseHat
+#from sense_hat import SenseHat
 import random
 import requests
 import base64
@@ -39,7 +39,7 @@ class manufacturing_laboratory():
         #rules
         self.max_vibration = 1.5 #put the max vibration to detect an error, it is a rule
         self.accelerometer = 0
-        self.sense = SenseHat()
+        #self.sense = SenseHat()
         #work order status and info
         self.start_time_proccess = datetime.datetime.utcnow()
         self.workorderId= ""
@@ -85,14 +85,14 @@ class manufacturing_laboratory():
                 self.error_production += 1
                 print(self.error_production)
                 self.max_vibration = self.accelerometer
-                self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
+                #self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
             else:
                 self.sense.clear((0,150,0)) #green
                 
     def workorder_start(self):    
         while self.workorder_listening:
             try:
-                query = '?q={"systemState": { "$like":"RELEASED" } }'
+                query = '?q={"systemState": { "$like":"UNRELEASED" } }'
                 if self.url_api == "":
                     raise ValueError("The URL cannot be empty.")
                 response = requests.get(self.url_api+query, headers=self.headers, verify=False)
@@ -131,17 +131,25 @@ class manufacturing_laboratory():
             if state == "IN_PROCESS":
                 data = {
                     "actualStartTime": int(time.time()),
+                    "state": state,
                     "systemState": state,
                 }
             if state == "COMPLETED":
                 data = {
                     "actualEndTime": int(time.time()),
+                    "state": state, #COMPLETED
                     "systemState": state, #COMPLETED
                 }
             
             json_data = json.dumps(data)
             print(json_data)
+            self.headers.update({"X-HTTP-Method-Override": "PATCH"})
+            print(self.headers)
             requests.post(self.url_api+workerOrder_id, headers=self.headers, data=json_data, verify=False)
+            self.headers.popitem()
+            if state == "COMPLETED":
+                self.on_lab()
+
             return True
         except ValueError as e:
             print("An error occurred: ", e)
@@ -280,32 +288,35 @@ class manufacturing_laboratory():
         self.cronometer_running = True
         thread_cronometer = threading.Thread(target=self.cronometer)
         thread_cronometer.start()
-        self.sense.show_message("Starting work order",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
+        #self.sense.show_message("Starting work order",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
         print("[bold blue]Starting work order[/bold blue] ")
         for in_production in range(1,int(self.to_produce)+1):
-            self.sense.show_message(f"Block # {in_production}", text_colour=[255, 135, 0], back_colour=[25, 25, 25])
+            #self.sense.show_message(f"Block # {in_production}", text_colour=[255, 135, 0], back_colour=[25, 25, 25])
             print(f"[bold green]Block # {in_production}[/bold green]")
             
-            self.sensor_running = True
-            thread_sensor = threading.Thread(target=self.vibration)
-            thread_sensor.start()
+            # self.sensor_running = True
+            if in_production == 2 :
+                self.accelerometer = 2
+                self.error_production += 1
+            else:
+                self.accelerometer = 0.8
+            # thread_sensor = threading.Thread(target=self.vibration)
+            # thread_sensor.start()
             #Run the production line 1
             self.testing_api_production_line()
             #self.testing_production_line()
             #self.production_line
             
             self.sensor_running = False
-            thread_sensor.join()
+            # thread_sensor.join()
 
-            self.sense.show_message(f" Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])
+            #self.sense.show_message(f" Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])
             print(f"[bold green]Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds[/bold green]")
-        self.sense.show_message("FINISHED work order", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
+        #self.sense.show_message("FINISHED work order", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
         print(f"[bold blue]FINISHED work order[/bold blue]")
         
         self.cronometer_running = False
         thread_cronometer.join()
-
-        self.workorder_listening = True
 
         self.update_work_order(state="COMPLETED")
         return (f"The work order of {self.to_produce} blocks has finished in {self.cronometer_time:.2f} seconds , there are {self.blockApproved} approved blocks and {self.blockRejected} rejected blocks, the line process detected {self.error_production} errors, with a max vibation of {self.max_vibration}")

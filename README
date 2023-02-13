@@ -3,3 +3,18 @@ This fill have some links and some steps where is explained the configuration
 this links explains the initial configuration of the raspberry pi
 https://aprendiendoarduino.wordpress.com/2022/04/17/paso-a-paso-instalar-y-configurar-raspberry-pi-os/
 
+installar en la sd os pi 64 bits
+configurar ssh con ip
+sudo apt update
+sudo apt upgrade
+ejecutar: sudo raspi-config
+Navegar hasta Interfacing Options
+Buscar y seleccionar VNC › Yes.
+
+instalar git 
+sudo apt install git
+sudo pip3 install pyserial
+sudo apt install sense-hat
+
+instalar git proyecto 
+git clone https://github.com/santiago990208/manufactoring_lab.git

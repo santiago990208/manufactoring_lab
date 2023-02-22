@@ -91,6 +91,7 @@ class manufacturing_laboratory():
                 
     def workorder_start(self):    
         while self.workorder_listening:
+            self.sense.show_message("START",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
             try:
                 query = '?q={"systemState": { "$like":"UNRELEASED" } }'
                 if self.url_api == "":

@@ -98,24 +98,25 @@ class manufacturing_laboratory():
                 response = requests.get(self.url_api+query, headers=self.headers, verify=False)
                 if response.status_code == 200:
                     data = response.json()
-                    workorder = data['items'][0] #brings the first to find
-                    self.start_time_proccess  = datetime.datetime.utcnow()
-                    
-                    planned_start_time = datetime.datetime.fromtimestamp(round(workorder["plannedStartTime"] / 1000)) # format to compare wiuth now time
-
-                    if self.start_time_proccess > planned_start_time:
-
-                        self.workorderId = workorder["id"]
-                        self.factory = workorder["factory"]
-                        self.productId = workorder["product"]
-                        self.to_produce = workorder["plannedQuantity"]
+                    if(data['items']):  
+                        workorder = data['items'][0] #brings the first to find
+                        self.start_time_proccess  = datetime.datetime.utcnow()
                         
-                        if self.update_work_order(state="IN_PROCESS"):
-                            print(f'send order of: {self.to_produce:.0f} blocks') #trigger production
-                            self.start_workorder()
-                            self.workorder_listening = False #stops listening while the proccess is completed
-                        else:
-                            raise ValueError("Error on updating work order status")
+                        planned_start_time = datetime.datetime.fromtimestamp(round(workorder["plannedStartTime"] / 1000)) # format to compare wiuth now time
+
+                        if self.start_time_proccess > planned_start_time:
+
+                            self.workorderId = workorder["id"]
+                            self.factory = workorder["factory"]
+                            self.productId = workorder["product"]
+                            self.to_produce = workorder["plannedQuantity"]
+                            
+                            if self.update_work_order(state="IN_PROCESS"):
+                                print(f'send order of: {self.to_produce:.0f} blocks') #trigger production
+                                self.start_workorder()
+                                self.workorder_listening = False #stops listening while the proccess is completed
+                            else:
+                                raise ValueError("Error on updating work order status")
                 time.sleep(10)
             except ValueError as e:
                 return print("An error occurred: ", e)
@@ -210,7 +211,6 @@ class manufacturing_laboratory():
             if machine_id == "qualityControl":
                 data= {
                     "id": machine_id,
-                    "factory": self.factory, #The value specified should be a registered factory identifier.
                     "state":status,
                     "gravingCheck":gravingCheck,
                 }

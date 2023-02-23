@@ -82,7 +82,7 @@ class manufacturing_laboratory():
             z = self.accelerometer["z"]
 
             self.accelerometer = max(x, y, z)
-            print(self.accelerometer)
+            #print(self.accelerometer)
             if self.accelerometer > self.max_vibration:
                 self.error_production += 1
                 print(self.error_production)
@@ -99,7 +99,7 @@ class manufacturing_laboratory():
                 if self.url_api == "":
                     raise ValueError("The URL cannot be empty.")
                 response = requests.get(self.url_api+query, headers=self.headers, verify=False)
-                print(response.json())
+                #print(response.json())
                 if response.status_code == 200:
                     data = response.json()
                     if(data['items']):  
@@ -195,7 +195,7 @@ class manufacturing_laboratory():
             self.api_monitor(url= self.url_belt, machine_id="qualityControl", status="INUSE", gravingCheck="Rejected")
         return gcode_path
 
-    def api_monitor(self, url="", machine_id="airpickerState",  status="IDLE", accelerometer = "", gravingCheck=""): 
+    def api_monitor(self, url="", machine_id="airpickerState",  status="IDLE", accelerometer = "1.0", gravingCheck=""): 
         try:
             if url == "":
                 print("function send api")
@@ -256,11 +256,14 @@ class manufacturing_laboratory():
         self.api_monitor(url= self.url_laser, machine_id="laserState", status="INUSE", accelerometer=self.accelerometer)
         self.block_production("LASER_MOVEMENT_START.txt",2)
         
+        print(self.error_production)
         if self.error_production == 0:
             self.block_production("IoT.txt",2)
             self.block_production("LASER_MOVEMENT_FINISH.txt",2)
+            
             self.api_monitor(url= self.url_laser, machine_id="laserState", status="IDLE", accelerometer=self.accelerometer)
         else:
+            print(self.max_vibration)
             self.api_monitor(url= self.url_laser, machine_id="laserState", status="DOWN", accelerometer=self.accelerometer)
             self.block_production("LASER_MOVEMENT_FINISH.txt",2)
 
@@ -273,10 +276,6 @@ class manufacturing_laboratory():
         self.block_production(arm=3)
         self.api_monitor(url= self.url_belt, machine_id="qualityControl", status="IDLE", gravingCheck="")
 
-        #Pick block and set it to quality control station
-        self.block_production('BLOCK_MOVEMENT_TO_BELT.txt',1)
-        #Quality control
-        self.block_production(arm=3)
 
         return True
     
@@ -308,9 +307,9 @@ class manufacturing_laboratory():
             #     self.accelerometer = 0.8
             
             #Run the production line 1
-            self.testing_api_production_line()
+            #self.testing_api_production_line()
             #self.testing_production_line()
-            #self.production_line
+            self.production_line()
             
             self.sensor_running = False
             # thread_sensor.join()
@@ -386,3 +385,10 @@ class manufacturing_laboratory():
         #Quality control
         print(self.quality_control())
         self.api_monitor(url= self.url_belt, machine_id="qualityControl", status="IDLE", gravingCheck="")
+
+
+# #Buena y Malas
+# Celerometro conincidente pico
+
+# OEE
+# Que siga grabando el siguiente bloque, pero que el malo se vaya a malo, y los siguientes se vaya a produccion normal

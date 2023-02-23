@@ -74,6 +74,7 @@ class manufacturing_laboratory():
 
     def vibration(self):
         # Run the sensor vibration in a new thread
+        print("Function vibration in")
         while self.sensor_running:
             self.accelerometer = self.sense.get_accelerometer_raw()
             x = self.accelerometer["x"]
@@ -81,6 +82,7 @@ class manufacturing_laboratory():
             z = self.accelerometer["z"]
 
             self.accelerometer = max(x, y, z)
+            print(self.accelerometer)
             if self.accelerometer > self.max_vibration:
                 self.error_production += 1
                 print(self.error_production)
@@ -91,12 +93,13 @@ class manufacturing_laboratory():
                 
     def workorder_start(self):    
         while self.workorder_listening:
-            self.sense.show_message("START",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
+            self.sense.show_message("START WORK ORDER",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
             try:
                 query = '?q={"systemState": { "$like":"UNRELEASED" } }'
                 if self.url_api == "":
                     raise ValueError("The URL cannot be empty.")
                 response = requests.get(self.url_api+query, headers=self.headers, verify=False)
+                print(response)
                 if response.status_code == 200:
                     data = response.json()
                     if(data['items']):  

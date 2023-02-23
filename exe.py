@@ -10,7 +10,7 @@ port_arm_airpicker= "/dev/ttyACM1"
 port_arm_laser = "/dev/ttyACM0"
 
 #urls of the api and the devices connectors
-url_api = "http://iotdemo00182.cna.phx.demoservices005.iot.oraclepdemos.com/productionMonitoring/clientapi/v2/workOrders" #the q is for the query, filtering only the ones with released
+url_api = "https://iotdemo00182.cna.phx.demoservices005.iot.oraclepdemos.com/productionMonitoring/clientapi/v2/workOrders" #the q is for the query, filtering only the ones with released
 url_link_airpicker = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/airpickerConnector"
 url_link_laser = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/laserConnector"
 url_link_qualitycontrol = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/qualityConnector"

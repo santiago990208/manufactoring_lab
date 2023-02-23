@@ -95,11 +95,11 @@ class manufacturing_laboratory():
         while self.workorder_listening:
             #self.sense.show_message("START WORK ORDER",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
             try:
-                query = '?q={"systemState": { "$like":"UNRELEASED" } }'
+                query =  ""#'?q={"systemState": { "$like":"UNRELEASED" } }'
                 if self.url_api == "":
                     raise ValueError("The URL cannot be empty.")
                 response = requests.get(self.url_api+query, headers=self.headers, verify=False)
-                print(response)
+                print(response.json())
                 if response.status_code == 200:
                     data = response.json()
                     if(data['items']):  

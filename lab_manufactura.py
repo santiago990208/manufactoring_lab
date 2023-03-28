@@ -205,6 +205,7 @@ class manufacturing_laboratory():
                 data = {
                     "id": machine_id,
                     "state":status,
+                    "accelerometer":int(accelerometer),
                 }
             if machine_id == "laserState":
                 data = {

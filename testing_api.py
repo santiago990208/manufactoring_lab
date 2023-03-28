@@ -57,6 +57,7 @@ def testing_iot_devices(headers):
     data_air= {
         "id": "airpickerState",
         "state": "IDLE",
+        "accelerometer": 1.8
     }
     json_data_air = json.dumps(data_air)
     a = requests.post(url_link_airpicker, headers=headers, data=json_data_air, verify=False)
@@ -78,5 +79,11 @@ def testing_iot_devices(headers):
     a = requests.post(url_link_qualitycontrol, headers=headers, data=json_data_quality, verify=False)
     print(a)
 
-# testing_iot_devices(headers)
-testing_workorder(headers,url)
+#testing_workorder(headers,url)
+i = 0
+while i < 10:
+    testing_iot_devices(headers)
+    i = i +1
+
+
+

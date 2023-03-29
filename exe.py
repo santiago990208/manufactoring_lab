@@ -2,7 +2,7 @@ from lab_manufactura import manufacturing_laboratory
 
 #params or auth and id of organization Supremo
 username = "iotadmin.00182"
-password = "V#FFLDEkNIw0"
+password = "KAbQk#Q60kX1"
 org_id = "6KQBWCBW1F1G"
 
 #serial port where the arms are connected, we listed with the command etc.

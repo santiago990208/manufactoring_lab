@@ -1,6 +1,6 @@
 from pydexarm import Dexarm
 from rich import print
-from sense_hat import SenseHat
+#from sense_hat import SenseHat
 import random
 import requests
 import base64
@@ -39,7 +39,7 @@ class manufacturing_laboratory():
         #rules
         self.max_vibration = 1.5 #put the max vibration to detect an error, it is a rule
         self.accelerometer = 0
-        self.sense = SenseHat()
+        #self.sense = SenseHat()
         #work order status and info
         self.start_time_proccess = datetime.datetime.utcnow()
         self.workorderId= ""
@@ -76,7 +76,7 @@ class manufacturing_laboratory():
         # Run the sensor vibration in a new thread
         print("Function vibration in")
         while self.sensor_running:
-            self.accelerometer = self.sense.get_accelerometer_raw()
+            self.accelerometer = 0.02 #self.sense.get_accelerometer_raw()
             x = self.accelerometer["x"]
             y = self.accelerometer["y"]
             z = self.accelerometer["z"]
@@ -87,13 +87,14 @@ class manufacturing_laboratory():
                 self.error_production += 1
                 print(self.error_production)
                 self.max_vibration = self.accelerometer
-                self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
+                ##self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
             else:
-                self.sense.clear((0,150,0)) #green
+                print('all good')
+                #self.sense.clear((0,150,0)) #green
                 
     def workorder_start(self):    
         while self.workorder_listening:
-            #self.sense.show_message("START WORK ORDER",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
+            ###self.sense.show_message("START WORK ORDER",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
             try:
                 query =  ""#'?q={"systemState": { "$like":"UNRELEASED" } }'
                 if self.url_api == "":
@@ -292,32 +293,33 @@ class manufacturing_laboratory():
         self.cronometer_running = True
         thread_cronometer = threading.Thread(target=self.cronometer)
         thread_cronometer.start()
-        self.sense.show_message("Starting work order",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
+        ##self.sense.show_message("Starting work order",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
         print("[bold blue]Starting work order[/bold blue] ")
         for in_production in range(1,int(self.to_produce)+1):
-            self.sense.show_message(f"Block # {in_production}", text_colour=[255, 135, 0], back_colour=[25, 25, 25])
+            ##self.sense.show_message(f"Block # {in_production}", text_colour=[255, 135, 0], back_colour=[25, 25, 25])
             print(f"[bold green]Block # {in_production}[/bold green]")
             
-            self.sensor_running = True
-            thread_sensor = threading.Thread(target=self.vibration)
-            thread_sensor.start()
-            # if in_production == 2 :
-            #     self.accelerometer = 2
-            #     self.error_production += 1
-            # else:
-            #     self.accelerometer = 0.8
+            # self.sensor_running = True
+            # thread_sensor = threading.Thread(target=self.vibration)
+            # thread_sensor.start()
+
+            if in_production == 2 :
+                self.accelerometer = 2
+                self.error_production += 1
+            else:
+                self.accelerometer = 0.8
             
             #Run the production line 1
-            #self.testing_api_production_line()
+            self.testing_api_production_line()
             #self.testing_production_line()
-            self.production_line()
+            # self.production_line()
             
             self.sensor_running = False
             # thread_sensor.join()
 
-            self.sense.show_message(f" Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])
+            ##self.sense.show_message(f" Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])
             print(f"[bold green]Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds[/bold green]")
-        self.sense.show_message("FINISHED work order", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
+        ##self.sense.show_message("FINISHED work order", text_colour=[0, 255, 255], back_colour=[25, 25, 25])
         print(f"[bold blue]FINISHED work order[/bold blue]")
         
         self.cronometer_running = False
@@ -392,4 +394,4 @@ class manufacturing_laboratory():
 # Celerometro conincidente pico
 
 # OEE
-# Que siga grabando el siguiente bloque, pero que el malo se vaya a malo, y los siguientes se vaya a produccion normal
+# Que siga grabando el siguiente bloque, pero que el malo se vaya a malo, y los siguientes se vaya a produccion normal, qu eno se muera y grave.

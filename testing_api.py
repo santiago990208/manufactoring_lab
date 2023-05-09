@@ -9,7 +9,7 @@ query = '?q={"systemState": { "$like":"UNRELEASED" } }'
 url = url_api#+query
 
 username = "iotadmin.00182"
-password = "KAbQk#Q60kX1"
+password = "5b019BJj5T#q"
 
 org_id_old = "6BNYV2GM1F1G"
 org_id_SUPREMO = "6KQBWCBW1F1G"
@@ -79,7 +79,7 @@ def testing_iot_devices(headers):
     a = requests.post(url_link_qualitycontrol, headers=headers, data=json_data_quality, verify=False)
     print(a)
 
-testing_workorder(headers,url)
+testing_iot_devices(headers)
 # i = 0
 # while i < 10:
 #     testing_iot_devices(headers)

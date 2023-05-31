@@ -2,8 +2,9 @@ from lab_manufactura import manufacturing_laboratory
 
 #params or auth and id of organization Supremo
 username = "iotadmin.00182"
-password = "KAbQk#Q60kX1"
+password = "4SG#leB4rOd3"
 org_id = "6KQBWCBW1F1G"
+work_order_processed = "WO-410-1081"
 
 #serial port where the arms are connected, we listed with the command etc.
 port_arm_airpicker= "/dev/ttyACM0"
@@ -17,6 +18,6 @@ url_link_qualitycontrol = "https://iotdemo00182.device.cna.phx.demoservices005.i
 url_production_line = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/productionlineController"
 
 
-manufactory = manufacturing_laboratory(username = username, password =password, org_id = org_id, port_arm1= port_arm_airpicker , port_arm2 = port_arm_laser, url_api =url_api, url_airpicker = url_link_airpicker,url_laser =url_link_laser,url_belt =url_link_qualitycontrol, url_production_line = url_production_line)
+manufactory = manufacturing_laboratory(username = username, password =password, org_id = org_id, work_order_processed = work_order_processed, port_arm1= port_arm_airpicker , port_arm2 = port_arm_laser, url_api =url_api, url_airpicker = url_link_airpicker,url_laser =url_link_laser,url_belt =url_link_qualitycontrol, url_production_line = url_production_line)
 
 manufactory.on_lab()

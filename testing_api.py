@@ -5,11 +5,11 @@ import base64
 import datetime
 from rich import print
 url_api = "https://iotdemo00182.cna.phx.demoservices005.iot.oraclepdemos.com/productionMonitoring/clientapi/v2/workOrders"
-query = '?q={"systemState": { "$like":"UNRELEASED" } }'
-url = url_api#+query
+query = '?q={"name": { "$like":"WO-410-1081" } }'
+url = url_api+query
 
 username = "iotadmin.00182"
-password = "5b019BJj5T#q"
+password = "4SG#leB4rOd3"
 
 org_id_old = "6BNYV2GM1F1G"
 org_id_SUPREMO = "6KQBWCBW1F1G"
@@ -46,6 +46,18 @@ def testing_workorder(headers,url):
             print(planned_start_time)
             if now > planned_start_time:
                 print(f'send order of: {planned_quantity:.0f} blocks')
+            
+                data = {
+                    "actualEndTime": int(time.time()),
+                    "state": "COMPLETE", #COMPLETED
+                    "systemState": "COMPLETE", #COMPLETED
+                }
+            
+            json_data = json.dumps(data)
+            print(json_data)
+
+            requests.post(url+"/WO-410-1081", headers=headers, data=json_data, verify=False)
+
     else:
         print("Request failed with status code: {}".format(response.status_code))
     headers.popitem()
@@ -65,7 +77,7 @@ def testing_iot_devices(headers):
     data_laser = {
         "id": "laserState",
         "state": "IDLE",
-        "accelerometer": 1.5
+        "accelerometer": 1.0
     }
     json_data_laser = json.dumps(data_laser)
     a = requests.post(url_link_laser, headers=headers, data=json_data_laser, verify=False)
@@ -79,7 +91,7 @@ def testing_iot_devices(headers):
     a = requests.post(url_link_qualitycontrol, headers=headers, data=json_data_quality, verify=False)
     print(a)
 
-testing_iot_devices(headers)
+testing_workorder(headers,url)
 # i = 0
 # while i < 10:
 #     testing_iot_devices(headers)

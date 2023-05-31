@@ -12,7 +12,7 @@ import datetime
 
 class manufacturing_laboratory():
     #Constructor
-    def __init__(self, username = "", password ="", org_id = "6BNYV2GM1F1G", port_arm1= "" , port_arm2 = "", url_api ="", url_airpicker ="",url_laser ="",url_belt ="", url_production_line = ""):
+    def __init__(self, username = "", password ="", org_id = "6BNYV2GM1F1G", work_order_processed = "WO-410-1081",port_arm1= "" , port_arm2 = "", url_api ="", url_airpicker ="",url_laser ="",url_belt ="", url_production_line = ""):
         
         #entry params
         self.username = username
@@ -35,7 +35,7 @@ class manufacturing_laboratory():
         #counters
         self.cronometer_time = 0
         self.error_production = 0
-        self.work_order_processed = 0
+        self.work_order_processed = work_order_processed
         #rules
         self.max_vibration = 1.5 #put the max vibration to detect an error, it is a rule
         self.accelerometer = 0
@@ -96,7 +96,7 @@ class manufacturing_laboratory():
         while self.workorder_listening:
             ###self.sense.show_message("START WORK ORDER",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
             try:
-                query =  ""#'?q={"systemState": { "$like":"UNRELEASED" } }'
+                query = '?q={"name": { "$like":"' + str(self.work_order_processed) + '" } }'
                 if self.url_api == "":
                     raise ValueError("The URL cannot be empty.")
                 response = requests.get(self.url_api+query, headers=self.headers, verify=False)
@@ -314,7 +314,7 @@ class manufacturing_laboratory():
             #self.testing_production_line()
             # self.production_line()
             
-            self.sensor_running = False
+            # self.sensor_running = False
             # thread_sensor.join()
 
             ##self.sense.show_message(f" Finished {in_production} blocks in: {self.cronometer_time:.2f} seconds",  text_colour=[255, 135, 0], back_colour=[25, 25, 25])

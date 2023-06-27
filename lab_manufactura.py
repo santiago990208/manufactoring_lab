@@ -388,10 +388,3 @@ class manufacturing_laboratory():
         #Quality control
         print(self.quality_control())
         self.api_monitor(url= self.url_belt, machine_id="qualityControl", status="IDLE", gravingCheck="")
-
-
-# #Buena y Malas
-# Celerometro conincidente pico
-
-# OEE
-# Que siga grabando el siguiente bloque, pero que el malo se vaya a malo, y los siguientes se vaya a produccion normal, qu eno se muera y grave.

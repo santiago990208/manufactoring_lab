@@ -2,7 +2,7 @@ from lab_manufactura import manufacturing_laboratory
 
 #params or auth and id of organization Supremo
 username = "iotadmin.00182"
-password = "4SG#leB4rOd3"
+password = "pyNX#qQxh89k"
 org_id = "6KQBWCBW1F1G"
 work_order_processed = "WO-410-1081"
 

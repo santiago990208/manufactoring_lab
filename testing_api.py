@@ -9,7 +9,7 @@ query = '?q={"name": { "$like":"WO-410-1081" } }'
 url = url_api+query
 
 username = "iotadmin.00182"
-password = "4SG#leB4rOd3"
+password = "pyNX#qQxh89k"
 
 org_id_old = "6BNYV2GM1F1G"
 org_id_SUPREMO = "6KQBWCBW1F1G"
@@ -28,6 +28,7 @@ headers = {
 
 def testing_workorder(headers,url):
     headers.update({"X-HTTP-Method-Override": "PATCH"})
+    print(headers)
     response = requests.get(url, headers=headers, verify=False)
     workorder = ""
     print(response.json())
@@ -91,7 +92,7 @@ def testing_iot_devices(headers):
     a = requests.post(url_link_qualitycontrol, headers=headers, data=json_data_quality, verify=False)
     print(a)
 
-testing_workorder(headers,url)
+#testing_workorder(headers,url)
 # i = 0
 # while i < 10:
 #     testing_iot_devices(headers)
@@ -99,3 +100,36 @@ testing_workorder(headers,url)
 
 
 
+def testing_iot_cs(headers):
+    url_connector_state = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/test_machineState"
+    data_state= {
+        "id": "test_machineState",
+        "state": "DOWN",
+    }
+    json_data_state = json.dumps(data_state)
+    print(json_data_state)
+    state_report = requests.post(url_connector_state, headers=headers, data=json_data_state, verify=False)
+    print(state_report)
+    
+    url_connector_ouput = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/test_productionOutput"
+    data_ouput= {
+        "modelID": "outPutModel",
+        "startTime": int(time.time()), #Date & Time
+        "endTime": int(time.time()), #Date & Time
+        "product": "7G2C9VKC18S0", #String
+        "quantity": "9", #Number
+        "badQuantity": "1", #Number
+        "factory": "300000178327892", #String
+        "machine": "SCM_300000203675710", #String
+        "workOrderNumber": "300000260047145", #String
+        "operationNumber": "10", #Integer
+        "resourceNumber": "1", #Integer
+        "productionLine": "", #String
+        "routingTask": "7G2C9W4W18S0", #String
+    }
+    json_data_ouput = json.dumps(data_ouput)
+    print(json_data_ouput)
+    ouput_report = requests.post(url_connector_ouput, headers=headers, data=json_data_ouput, verify=False)
+    print(ouput_report)
+
+testing_iot_cs(headers)

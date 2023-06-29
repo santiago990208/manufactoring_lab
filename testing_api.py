@@ -1,3 +1,4 @@
+##ESTE ARHIVO ES NETAMENTE DE TESTING
 import json
 import time
 import requests
@@ -63,40 +64,10 @@ def testing_workorder(headers,url):
         print("Request failed with status code: {}".format(response.status_code))
     headers.popitem()
 
-def testing_iot_devices(headers):
-    url_link_airpicker = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/airpickerConnector"
-    url_link_laser = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/laserConnector"
-    url_link_qualitycontrol = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/qualityConnector"
-    data_air= {
-        "id": "airpickerState",
-        "state": "IDLE",
-        "accelerometer": 1.8
-    }
-    json_data_air = json.dumps(data_air)
-    a = requests.post(url_link_airpicker, headers=headers, data=json_data_air, verify=False)
-    print(a)
-    data_laser = {
-        "id": "laserState",
-        "state": "IDLE",
-        "accelerometer": 1.0
-    }
-    json_data_laser = json.dumps(data_laser)
-    a = requests.post(url_link_laser, headers=headers, data=json_data_laser, verify=False)
-    print(a)
-    data_quality = {
-        "id": "qualityControl",
-        "state": "IDLE",
-        "gravingCheck": "Approved"
-    }
-    json_data_quality = json.dumps(data_quality)
-    a = requests.post(url_link_qualitycontrol, headers=headers, data=json_data_quality, verify=False)
-    print(a)
-
-#testing_workorder(headers,url)
-# i = 0
-# while i < 10:
-#     testing_iot_devices(headers)
-#     i = i +1
+i = 0
+while i < 10:
+    #  testing_iot_devices(headers)
+     i = i +1
 
 
 
@@ -104,12 +75,23 @@ def testing_iot_cs(headers):
     url_connector_state = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/test_machineState"
     data_state= {
         "id": "test_machineState",
-        "state": "DOWN",
+        "state": "IDLE",
     }
     json_data_state = json.dumps(data_state)
     print(json_data_state)
     state_report = requests.post(url_connector_state, headers=headers, data=json_data_state, verify=False)
     print(state_report)
+
+    url_connector_state_airpicker = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/airpicker_connector"
+    data_state_airpicker= {
+        "id": "test_machineState",
+        "state": "DOWN",
+        "accelerometer": 1,
+    }
+    json_data_state_airpicker = json.dumps(data_state_airpicker)
+    print(json_data_state_airpicker)
+    state_report_airpicker = requests.post(url_connector_state_airpicker, headers=headers, data=json_data_state_airpicker, verify=False)
+    print(state_report_airpicker)
     
     url_connector_ouput = "https://iotdemo00182.device.cna.phx.demoservices005.iot.oraclepdemos.com/cgw/test_productionOutput"
     data_ouput= {
@@ -132,4 +114,7 @@ def testing_iot_cs(headers):
     ouput_report = requests.post(url_connector_ouput, headers=headers, data=json_data_ouput, verify=False)
     print(ouput_report)
 
-testing_iot_cs(headers)
+i = 0
+while i < 10:
+     testing_iot_cs(headers)
+     i = i +1

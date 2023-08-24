@@ -23,6 +23,6 @@ url_production_line = "https://iotdemo00182.device.cna.phx.demoservices005.iot.o
 manufactory = manufacturing_laboratory(username = username, password =password, org_id = org_id, work_order_processed = work_order_processed, port_arm1= port_arm_airpicker , port_arm2 = port_arm_laser, url_api =url_api, url_airpicker = url_link_airpicker,url_laser =url_link_laser,url_belt =url_link_qualitycontrol, url_production_line = url_production_line)
 
 # Iniciamos el laboratorio con el método on_lab()
-manufactory.on_lab()
+manufactory.testing_production_line()
 
 #LOS ARHIVOS .txt SON LO GCODE DE LOS BRAZOS Y BANDA, SE GENRARON CON LA APLICACION ROTRICS, IR A SU DOCUMENTACION PARA CONOCER MAS.

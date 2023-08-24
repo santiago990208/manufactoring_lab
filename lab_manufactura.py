@@ -1,7 +1,7 @@
 # Importando las librerías necesarias para la ejecución del programa
 from pydexarm import Dexarm
 from rich import print
-from sense_hat import SenseHat
+#from sense_hat import SenseHat
 import random
 import requests
 import base64
@@ -90,7 +90,7 @@ class manufacturing_laboratory():
                 self.error_production += 1
                 print(self.error_production)
                 self.max_vibration = self.accelerometer
-                self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
+                # self.sense.show_message(f"ERROR # {self.error_production}", text_colour=[255, 255, 255], back_colour=[255, 0, 0])
             else:
                 print('Todo bien')
                 #self.sense.clear((0,150,0)) # Verde
@@ -100,7 +100,7 @@ class manufacturing_laboratory():
         # Mientras la orden de trabajo esté siendo escuchada
         while self.workorder_listening:
             # Mostrar en el sensor Hat el mensaje "START WORK ORDER"
-            self.sense.show_message("START WORK ORDER",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
+            # self.sense.show_message("START WORK ORDER",text_colour=[0, 255, 255], back_colour=[25, 25, 25])
             try:
                 # Query para buscar en la API una orden de trabajo que tenga el nombre especificado
                 query = '?q={"name": { "$like":"' + str(self.work_order_processed) + '" } }'
